@@ -7,58 +7,9 @@ Victoria Puck-Karam
 ``` r
 library(tidyverse)
 ```
-
-    ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──
-
-    ## ✓ ggplot2 3.3.5     ✓ purrr   0.3.4
-    ## ✓ tibble  3.1.6     ✓ dplyr   1.0.7
-    ## ✓ tidyr   1.1.4     ✓ stringr 1.4.0
-    ## ✓ readr   2.1.1     ✓ forcats 0.5.1
-
-    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-    ## x dplyr::filter() masks stats::filter()
-    ## x dplyr::lag()    masks stats::lag()
-
 ``` r
 library(mosaic)
 ```
-
-    ## Registered S3 method overwritten by 'mosaic':
-    ##   method                           from   
-    ##   fortify.SpatialPolygonsDataFrame ggplot2
-
-    ## 
-    ## The 'mosaic' package masks several functions from core packages in order to add 
-    ## additional features.  The original behavior of these functions should not be affected by this.
-
-    ## 
-    ## Attaching package: 'mosaic'
-
-    ## The following object is masked from 'package:Matrix':
-    ## 
-    ##     mean
-
-    ## The following objects are masked from 'package:dplyr':
-    ## 
-    ##     count, do, tally
-
-    ## The following object is masked from 'package:purrr':
-    ## 
-    ##     cross
-
-    ## The following object is masked from 'package:ggplot2':
-    ## 
-    ##     stat
-
-    ## The following objects are masked from 'package:stats':
-    ## 
-    ##     binom.test, cor, cor.test, cov, fivenum, IQR, median, prop.test,
-    ##     quantile, sd, t.test, var
-
-    ## The following objects are masked from 'package:base':
-    ## 
-    ##     max, mean, min, prod, range, sample, sum
-
 ``` r
 library( lubridate )
 ```
@@ -73,21 +24,6 @@ library( lubridate )
 ``` r
 library('scales')
 ```
-
-    ## 
-    ## Attaching package: 'scales'
-
-    ## The following object is masked from 'package:mosaic':
-    ## 
-    ##     rescale
-
-    ## The following object is masked from 'package:purrr':
-    ## 
-    ##     discard
-
-    ## The following object is masked from 'package:readr':
-    ## 
-    ##     col_factor
 
 ## Guiding Question: How do demographic factors (race, median income, % healthcare employment, etc.) impact the percentage of citizens recieving the covid vaccine, by state?
 
