@@ -1,7 +1,7 @@
 ---
 title: "Covid Vaccination Demographic Analysis"
 author: "Victoria Puck-Karam"
-output: html_notebook
+output: github_document
 ---
 
 # Front Matter
@@ -58,7 +58,7 @@ StateVaxPerc<-
   select(NAME,AGEGROUP,RACE,HISP,medincome,medincome_moe,percent_education_employment,percent_healthcare_employment,percentageOfPop)
 
 
-StateVaxPerc
+glimpse(StateVaxPerc)
 ```
 
 #### Cleaned the percentage data of the percent symbols for easier mathematical operations 
@@ -68,7 +68,7 @@ StateVaxPerc<-
   StateVaxPerc %>% 
   mutate(percentageOfPop = gsub(pattern = "[, %]", replacement = "", percentageOfPop),percent_healthcare_employment = gsub(pattern = "[, %]", replacement = "", percent_healthcare_employment),percent_education_employment = gsub(pattern = "[, %]", replacement = "", percent_education_employment))
 
-StateVaxPerc
+head(StateVaxPerc)
 ```
 ### the relationships between the percentageOfPop is that they should add up the the total of all races which are around 100% example: Both Hispanic origins Mississippi make up 99.652405969% of the whole population which is essentially 100%, the Non-Hispanic population makes up 96.300355262% and Hispanic makes up 3.352050708% of the population. 
 
@@ -82,7 +82,7 @@ StateVaxPerc
   CovidState%>%
   group_by(location)%>%
   summarise(date=max(date)) ### based on this information, we can see that the most recent day that the information was updated was 2021-09-30, so I will be using this data 
-CovidState
+head(CovidState)
 
 
 ```
@@ -95,7 +95,7 @@ MostRecentData <-
   filter(date=="2021-09-30")%>%
   select(NAME,total_vaccinations,people_fully_vaccinated_per_hundred,people_fully_vaccinated)
 
-MostRecentData
+head(MostRecentData)
 ```
 ### adding more demographic data by state 
 
@@ -104,7 +104,7 @@ DemoVaxTogether<-
   StateVaxPerc%>%
   inner_join(MostRecentData,by= "NAME")
 
-DemoVaxTogether
+head(DemoVaxTogether)
 ```
 
 ### The first demographic feature of interest is the impact of race on overall state vaccination percentage
@@ -116,7 +116,7 @@ raceSpecificData<-
   mutate(rank =rank(people_fully_vaccinated_per_hundred))%>%
   arrange(desc(rank))
   
-raceSpecificData
+head(raceSpecificData)
 
 
 ```
@@ -134,7 +134,7 @@ raceSpecificData<-
   mutate(white= as.numeric(white))%>%
   mutate()
 
-raceSpecificData
+head(raceSpecificData)
 
 ```
 ## Correlation between percent of white people versus the vaccination rate in that state
@@ -216,7 +216,7 @@ In conclusion, the strongest demographic relationship observed from this data se
  **note: there were no strong relationships that could be observed using three variables, which is why i chose to stay with 2 variable comparisons**
 
 
-
+ 
 
 
 
