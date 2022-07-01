@@ -1,0 +1,222 @@
+---
+title: "Covid Vaccination Demographic Analysis"
+author: "Victoria Puck-Karam"
+output: html_notebook
+---
+
+# Front Matter
+
+```{r}
+library(tidyverse)
+library(mosaic)
+library( lubridate )
+library('scales')
+
+```
+## Guiding Question: How do demographic factors (race, median income, % healthcare employment, etc.) impact the percentage of citizens recieving the covid vaccine, by state? 
+
+### Why is This Important? 
+ Covid-19 has plagued our society for nearly 3 years at this point. My generation, specifically, has faced severe mental health repercussions and the entire human population has faced severe sickness and difficult life circumstances. Needless to say, COVID has made everyone's lives difficult but luckily a vaccine has been developed successfully. Despot the vaccine being scientifically proven to be safe and effective, only 65% of Americans are fully vaccinated. In order to achieve herd immunity, the US and the world needs to have over an 80% vaccination rate. It is essential that we understand trends in vaccination rates based on geographical location in the US and demographic factors, in order to assemble systems to combat the anti-vaxx narative in those communities. 
+
+### Preparing Primary Data Source 
+#### Citation: 
+Urban Institute. 2021. Vaccinating the US. Accessible from [this website](https://datacatalog.urban.org/dataset/vaccinating-us). Data originally sourced from Centers for Disease Control, 5 year American Community Survey (2015-2019) and Bureau of Labor Statistics, developed at the Urban Institute, and made available under the ODC-BY 1.0 Attribution License.
+
+#### secondary dataset from [CDC covid dashboard](https://covid.cdc.gov/covid-data-tracker/COVIDData/getAjaxData?id=vaccination_data)
+
+```{r}
+StateVax <- read.csv("/Users/victoriapuck-karam/Documents/stat 184 files/final-project-g10-puck/CDCStateVax.csv")
+StateDemography <- read_csv("/Users/victoriapuck-karam/Documents/stat 184 files/final-project-g10-puck/CDCStateData.csv")
+CovidState <- read.csv("/Users/victoriapuck-karam/Documents/stat 184 files/final-project-g10-puck/CDC Daily Vaccination Data - state_timeseries.csv")
+
+
+glimpse(StateVax)
+glimpse(CovidState)
+glimpse(StateDemography)
+
+```
+## Data Wrangling 
+
+#### joining demographic data to vaccination data by state name 
+```{r}
+StateVaxDemo <-
+  StateVax%>%
+  inner_join(StateDemography,by = "NAME" )
+
+glimpse(StateVaxDemo)
+```
+
+#### converting all decimal values into percentages, and whole numbers of sub categories into percentages in order to standardize information
+```{r}
+
+
+StateVaxPerc<- 
+  StateVaxDemo%>%
+  mutate(percentageOfPop= percent(value/total_population))%>%
+  mutate(percent_education_employment=percent(percent_education_employment))%>%
+  mutate(percent_healthcare_employment=percent(percent_healthcare_employment))%>%
+  select(NAME,AGEGROUP,RACE,HISP,medincome,medincome_moe,percent_education_employment,percent_healthcare_employment,percentageOfPop)
+
+
+StateVaxPerc
+```
+
+#### Cleaned the percentage data of the percent symbols for easier mathematical operations 
+
+```{r}
+StateVaxPerc<-
+  StateVaxPerc %>% 
+  mutate(percentageOfPop = gsub(pattern = "[, %]", replacement = "", percentageOfPop),percent_healthcare_employment = gsub(pattern = "[, %]", replacement = "", percent_healthcare_employment),percent_education_employment = gsub(pattern = "[, %]", replacement = "", percent_education_employment))
+
+StateVaxPerc
+```
+### the relationships between the percentageOfPop is that they should add up the the total of all races which are around 100% example: Both Hispanic origins Mississippi make up 99.652405969% of the whole population which is essentially 100%, the Non-Hispanic population makes up 96.300355262% and Hispanic makes up 3.352050708% of the population. 
+
+
+
+#### Now to add the vaccination data to the demography data
+
+```{r}
+
+
+  CovidState%>%
+  group_by(location)%>%
+  summarise(date=max(date)) ### based on this information, we can see that the most recent day that the information was updated was 2021-09-30, so I will be using this data 
+CovidState
+
+
+```
+
+### the most recently dated information about vaccination status is 2021-09-03 , so select each unqiue case at this time to analyze most recent data 
+```{r}
+MostRecentData <-
+  CovidState%>%
+  rename("NAME"='location')%>%
+  filter(date=="2021-09-30")%>%
+  select(NAME,total_vaccinations,people_fully_vaccinated_per_hundred,people_fully_vaccinated)
+
+MostRecentData
+```
+### adding more demographic data by state 
+
+```{r}
+DemoVaxTogether<- 
+  StateVaxPerc%>%
+  inner_join(MostRecentData,by= "NAME")
+
+DemoVaxTogether
+```
+
+### The first demographic feature of interest is the impact of race on overall state vaccination percentage
+
+
+```{r}
+raceSpecificData<-
+  DemoVaxTogether%>%
+  mutate(rank =rank(people_fully_vaccinated_per_hundred))%>%
+  arrange(desc(rank))
+  
+raceSpecificData
+
+
+```
+
+### percentages of each race breakdown disregarding age and hispanic origin breakdown 
+
+```{r}
+raceSpecificData<-
+  raceSpecificData%>%
+  pivot_wider(names_from = RACE,values_from =percentageOfPop  )%>%
+  filter(AGEGROUP ==	'All ages' )%>%
+  filter(HISP =="Both Hispanic Origins")%>%
+  select(NAME,"people_fully_vaccinated_per_hundred","White alone","American Indian and Alaska Native alone","Black alone","Asian alone","Native Hawaiian and Other Pacific Islander alone","Two or more races")%>%
+  rename("white"= "White alone")%>%
+  mutate(white= as.numeric(white))%>%
+  mutate()
+
+raceSpecificData
+
+```
+## Correlation between percent of white people versus the vaccination rate in that state
+```{r}
+ggplot(raceSpecificData, aes(x=people_fully_vaccinated_per_hundred))+geom_point(aes(y=white), alpha=3,stroke=0.5, color="orange")+geom_smooth(aes(x=people_fully_vaccinated_per_hundred, y=white),color='purple')+theme_classic()+xlab("vaccination rate")+ylab("percentage of white citizens")+ggtitle("            % of white citizens versus vaccination rate per state")
+```
+## Correlation between percent of white people versus the vaccination rate in that state
+ I wanted to analyze this relation as white people face reap all the advantages of society, especially in regards to familial wealth and healthcare systems that are tailored towards them. I hypothesized that the areas with the highest vaccination rates would have the highest percentage of white people, because historically they have been given a reason to distrust the american health care system. 
+ 
+ According to this graphic there doesn't seem to be a strong correlation between the percentage of white citizens versus the vaccination rate. This could be explained by the fact that white people are the majority in America, so there is more variation from state to state about vaccination status that prevents an obvious trend from being observed. 
+
+
+
+
+## More generally a correlation between percentage of residents who are minorities racially 
+
+
+```{r}
+minorityData<- 
+  raceSpecificData%>%
+  mutate(minorities= 100- white)%>% # find the non-white percentage of citizens
+  select(NAME, people_fully_vaccinated_per_hundred,minorities )
+minorityData
+```
+```{r}
+ggplot(minorityData, aes(x=minorities))+geom_jitter(aes(y=people_fully_vaccinated_per_hundred))+geom_smooth(aes(y=people_fully_vaccinated_per_hundred))+xlab("percent of minorities")+ylab("vaccination rate")+theme_classic()+ggtitle("            % of racial minority citizens versus vaccination rate per state")
+```
+
+  This chart seems to demonstrate a stronger correlation between the the rate of citizens that are minorities and vaccination rate than the rate of white citizens and vaccination rate. The confidence is not high enough to draw a strong conclusion, but it appears that in general the states with lower percentages of minority citizens have the highest vaccination rates. There doesn't seem to be a strong enough correlation to determine if  race has a strong influence on vaccination rates. 
+
+## geographic location versus vaccination rate
+```{r}
+mUSMap(DemoVaxTogether,key= 'NAME', fill= 'people_fully_vaccinated_per_hundred')+ggtitle("Vaccination Rate By State ")
+```
+
+This map seems to reveal the strongest correlation between geographic feature versus vaccination rate. The concentration of the lowest rates is primarily located in the South. Something could be said as to the correlation between the majority polilitcal affiliation of a state versus vaccination rate, as that cluster of southern states has historically voted red. 
+
+
+
+## Comparison Between State Vaccination Rate versus Income Across States: 
+
+
+
+### Visual Representation of weath accross states, 
+
+The map below represents the variation in median income per state. It appears that most of the lower median income states are concentrated in the south, much like the US map which maps the vaccination rates. There seems to be visually a strong correlation between the two, so let's investigate that. 
+
+```{r}
+MedPerState<- 
+  StateVaxDemo%>%
+ select(NAME,medincome)%>%
+  unique()
+
+mUSMap(MedPerState,key= 'NAME', fill= 'medincome')
+  
+```
+
+### data wrangled to pull only the vaccination data and the median income per state
+```{r}
+medIncomeVersusVax<-
+  DemoVaxTogether%>%
+  select(NAME, people_fully_vaccinated_per_hundred, medincome)%>%
+  group_by(NAME, people_fully_vaccinated_per_hundred, medincome)%>%
+  unique()
+
+medIncomeVersusVax
+
+```
+
+
+```{r}
+ggplot(medIncomeVersusVax, aes(x= people_fully_vaccinated_per_hundred))+geom_point(aes(y= medincome))+geom_smooth(method=lm, aes(y=medincome ))+xlab("vaccination %")+ylab("median income")+ggtitle("              vaccination rate versus median income")
+```
+There is a very strong correlation between median income and vaccination percentage. There is a very obvious relationship as income increases, vaccination rate increases. As observed earlier, there is a connection between access to health care and income, and then in turn the vaccination rate. 
+
+## Conclusion: 
+In conclusion, the strongest demographic relationship observed from this data set is the relationship between median income and vaccination rate. Surprisingly, there was no obvious or strong relationships between any of the racial demographic elements. In terms 
+
+ **note: there were no strong relationships that could be observed using three variables, which is why i chose to stay with 2 variable comparisons**
+
+
+
+
+
+
