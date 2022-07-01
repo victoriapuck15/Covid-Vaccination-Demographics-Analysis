@@ -25,9 +25,9 @@ Urban Institute. 2021. Vaccinating the US. Accessible from [this website](https:
 #### secondary dataset from [CDC covid dashboard](https://covid.cdc.gov/covid-data-tracker/COVIDData/getAjaxData?id=vaccination_data)
 
 ```{r}
-StateVax <- read.csv("/Users/victoriapuck-karam/Documents/stat 184 files/final-project-g10-puck/CDCStateVax.csv")
-StateDemography <- read_csv("/Users/victoriapuck-karam/Documents/stat 184 files/final-project-g10-puck/CDCStateData.csv")
-CovidState <- read.csv("/Users/victoriapuck-karam/Documents/stat 184 files/final-project-g10-puck/CDC Daily Vaccination Data - state_timeseries.csv")
+StateVax <- read.csv("/Users/victoriapuck-karam/Documents/Covid-Vaccination-Demographics-Analysis/CDCStateVax.csv")
+StateDemography <- read_csv("/Users/victoriapuck-karam/Documents/Covid-Vaccination-Demographics-Analysis/CDCStateData.csv")
+CovidState <- read.csv("/Users/victoriapuck-karam/Documents/Covid-Vaccination-Demographics-Analysis/CDC Daily Vaccination Data - state_timeseries.csv")
 
 
 glimpse(StateVax)
